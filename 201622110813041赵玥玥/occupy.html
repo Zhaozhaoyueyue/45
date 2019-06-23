@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>侵占领土</title>
+		<link rel="stylesheet" href="css/other.css"/>
+		<style>
+			body{
+				margin: 0;
+			}
+			#viewDiv {
+				position: absolute;
+				padding: 0;
+				margin: 0;
+				top:76px;
+				height: 87%;
+				width: 100%;
+			}
+		</style>
+
+		<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/themes/light/main.css" />
+		<script src="https://js.arcgis.com/4.11/"></script>
+
+		<script>
+			require(["esri/Map", "esri/views/MapView", "esri/layers/GeoJSONLayer", "esri/widgets/Legend"], function(Map, MapView, GeoJSONLayer, Legend) {
+				var map = new Map({
+					basemap: "osm"
+				});
+
+				var view = new MapView({
+					container: "viewDiv",
+					map: map,
+					center: [110, 30],
+					zoom: 4
+				});
+
+				var template = {
+					title: "occupied area",
+					content: "Name: {NAME}<br/>Level: {Jap}<br/>"
+				};
+
+				const geoJSONLayer = new GeoJSONLayer({
+					url: "https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/occupy.json",
+					copyright: "Occupy",
+					title: "Occupy",
+					popupTemplate: template,
+					renderer: {
+						type: "class-breaks",
+						defaultSymbol: {
+							type: "simple-fill",
+							color: "#fcedcd",
+							outline: {
+								color: [255, 255, 255, 0.1],
+								width: 0.5
+							}
+						},
+						visualVariables: [{
+							type: "color",
+							field: "Japn",
+							stops: [{
+									value: 1,
+									color: "#fbf5f5"
+								},
+								{
+									value: 14,
+									color: "#da4848"
+								}
+							]
+						}]
+					}
+
+				});
+				map.add(geoJSONLayer);
+				
+				view.ui.add(
+					new Legend({
+						view: view
+					}),
+					"bottom-left"
+				);
+
+			});
+		</script>
+	</head>
+
+	<body>
+		<div id="viewDiv"></div>
+		<div class="navv">
+			<nav>
+				<ul>
+					<li>
+						<a href="Main.html"><b>主页</b></a>
+					</li>
+					<li>
+						<a href="occupy.html"><b>被侵占领土</b></a>
+					</li>
+					<li>
+						<a href="main compaigns.html"><b>主要战役</b></a>
+					</li>
+					<li>
+						<a href="port city.html"><b>开放港口</b></a>
+					</li>
+					<li>
+						<a href="analyse.html"><b>分析比较</b></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</body>
+
+</html>

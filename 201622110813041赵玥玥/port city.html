@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>14个开放港口及省份</title>
+		<link rel="stylesheet" href="css/other.css" />
+
+		<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/themes/light/main.css" />
+		<script src="https://js.arcgis.com/4.11/"></script>
+
+		<style>
+			body {
+				margin: 0;
+			}
+			
+			#viewDiv {
+				position: absolute;
+				padding: 0;
+				margin: 0;
+				top: 76px;
+				height: 87%;
+				width: 100%;
+			}
+			
+			#layerToggle {
+				top: 80px;
+				right: 20px;
+				position: absolute;
+				z-index: 99;
+				background-color: white;
+				border-radius: 8px;
+				padding: 10px;
+				opacity: 0.75;
+			}
+		</style>
+
+		<script>
+			require([
+				"esri/Map",
+				"esri/views/SceneView",
+				"esri/layers/GeoJSONLayer",
+				"esri/layers/CSVLayer",
+				"esri/widgets/Legend"
+			], function(Map, SceneView, GeoJSONLayer, CSVLayer, Legend) {
+				/*****************************************************************
+				 * Create two TileLayer instances. One pointing to a
+				 * cached map service depicting U.S. male population and the other
+				 * pointing to a layer of roads and highways.
+				 *****************************************************************/
+				var template = {
+					title: "portcity",
+					content: "Name: {name}<br/>"
+				};
+				var csvLayer = new CSVLayer({
+					url: "https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/portcity.csv",
+					// This property can be used to uniquely identify the layer
+					id: "cls",
+					visible: false,
+					title: "PortCities",
+					popupTemplate: template
+				});
+				csvLayer.renderer = {
+					type: "class-breaks",
+					defaultSymbol: {
+						type: "simple-marker",
+						color: "blue"
+					}
+				};
+
+				var jsontemplate = {
+					title: "Campaigns",
+					content: "Name: {NAME}<br/>"
+				};
+
+				var jsonLayer = new GeoJSONLayer({
+					url: "https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/portcity.json",
+					id: "jsl",
+					opacity: 0.9,
+					title: "Port Provices",
+					popupTemplate: jsontemplate,
+					renderer: {
+						type: "class-breaks",
+						defaultSymbol: {
+							type: "simple-fill",
+							color: "#fcedcd",
+							outline: {
+								color: [255, 255, 255, 0.1],
+								width: 0.5
+							}
+						},
+						visualVariables: [{
+							type: "color",
+							field: "portcity",
+							stops: [{
+									value: 1,
+									color: "#D0D0CB"
+								},
+								{
+									value: 2,
+									color: "#93a1f5"
+								}
+							]
+						}]
+					}
+				});
+
+				/*****************************************************************
+				 * Layers may be added to the map in the map's constructor
+				 *****************************************************************/
+				var map = new Map({
+					basemap: "oceans",
+					layers: [jsonLayer]
+				});
+
+				/*****************************************************************
+				 * Or they may be added to the map using map.add()
+				 *****************************************************************/
+				map.add(csvLayer);
+
+				var view = new SceneView({
+					container: "viewDiv",
+					map: map
+				});
+
+				/*****************************************************************
+				 * The map handles the layers' data while the view and layer views
+				 * take care of renderering the layers
+				 *****************************************************************/
+				view.on("layerview-create", function(event) {
+					if(event.layer.id === "jsl") {
+						// Explore the properties of the population layer's layer view here
+						console.log(
+							"LayerView for male population created!",
+							event.layerView
+						);
+					}
+					if(event.layer.id === "cls") {
+						// Explore the properties of the transportation layer's layer view here
+						// Explore the properties of the transportation layer's layer view here
+						console.log("LayerView for streets created!", event.layerView);
+					}
+				});
+
+				/*****************************************************************
+				 * Layers are promises that resolve when loaded, or when all their
+				 * properties may be accessed. Once the population layer has loaded,
+				 * the view will animate to it's initial extent.
+				 *****************************************************************/
+				view.when(function() {
+					jsonLayer.when(function() {
+						view.goTo(jsonLayer.fullExtent);
+					});
+				});
+
+				var clsLayerToggle = document.getElementById("clsLayer");
+
+				/*****************************************************************
+				 * The visible property on the layer can be used to toggle the
+				 * layer's visibility in the view. When the visibility is turned off
+				 * the layer is still part of the map, which means you can access
+				 * its properties and perform analysis even though it isn't visible.
+				 *******************************************************************/
+				clsLayerToggle.addEventListener("change", function() {
+					csvLayer.visible = clsLayerToggle.checked;
+				});
+				view.ui.add(
+					new Legend({
+						view: view
+					}),
+					"bottom-left"
+				);
+			});
+		</script>
+	</head>
+
+	<body>
+		<div id="viewDiv"></div>
+		<span id="layerToggle">
+      <input type="checkbox" id="clsLayer" /> Port City
+    </span>
+		<div class="navv">
+			<nav>
+				<ul>
+					<li>
+						<a href="Main.html"><b>主页</b></a>
+					</li>
+					<li>
+						<a href="occupy.html"><b>被侵占领土</b></a>
+					</li>
+					<li>
+						<a href="main compaigns.html"><b>主要战役</b></a>
+					</li>
+					<li>
+						<a href="port city.html"><b>开放港口</b></a>
+					</li>
+					<li>
+						<a href="analyse.html"><b>分析比较</b></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</body>
+
+</html>

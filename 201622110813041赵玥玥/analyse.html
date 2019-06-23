@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+		<title>分析比较</title>
+		<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/css/main.css">
+		<script src="https://js.arcgis.com/4.11/"></script>
+		<link rel="stylesheet" href="css/other.css"/>
+		<style>
+			html,
+			body,
+			#map1,
+			#map2 {
+				position: relative;			
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			
+			body {
+				background-color: #FFF;
+				overflow: hidden;
+				font-family: "Trebuchet MS";
+			}
+			
+			#map1,
+			#map2 {
+				margin-top: 76px;
+				float: left;
+				width: 49.5%;
+			}
+			
+			#map1 {
+				border-right: 2px solid #999;
+			}
+			
+			#layerToggle {
+				top: 20px;
+				right: 20px;
+				position: absolute;
+				z-index: 99;
+				background-color: white;
+				border-radius: 8px;
+				padding: 10px;
+				opacity: 0.75;
+			}
+		</style>
+		<script>
+			var map1, map2;
+			require([
+					"esri/Map",
+					"esri/views/MapView",
+					"esri/core/watchUtils",
+					"esri/layers/CSVLayer",
+					"esri/layers/GeoJSONLayer",
+					"esri/widgets/Legend",
+					"esri/widgets/Expand"
+				],
+				function(Map, MapView, watchUtils, CSVLayer, GeoJSONLayer, Legend, Expand) {
+					//map1，被侵占省份
+					var template = {
+						title: "occupied area",
+						content: "Name: {NAME}<br/>Level: {Jap}<br/>"
+					};
+
+					const geoJSONLayer = new GeoJSONLayer({
+						url: "https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/occupy.json",
+						copyright: "Occupy",
+						title: "Occupy",
+						popupTemplate: template,
+						renderer: {
+							type: "class-breaks",
+							defaultSymbol: {
+								type: "simple-fill",
+								color: "#fcedcd",
+								outline: {
+									color: [255, 255, 255, 0.1],
+									width: 0.5
+								}
+							},
+							visualVariables: [{
+								type: "color",
+								field: "Japn",
+								stops: [{
+										value: 1,
+										color: "#fbf5f5"
+									},
+									{
+										value: 14,
+										color: "#da4848"
+									}
+								]
+							}]
+						}
+
+					});
+					//map2,港口城市
+					var jsontemplate = {
+						title: "Campaigns",
+						content: "Name: {NAME}<br/>"
+					};
+
+					var jsonLayer = new GeoJSONLayer({
+						url: "https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/portcity.json",
+						id: "jsl",
+						opacity: 0.9,
+						title: "Port Provices",
+						popupTemplate: jsontemplate,
+						renderer: {
+							type: "class-breaks",
+							defaultSymbol: {
+								type: "simple-fill",
+								color: "#fcedcd",
+								outline: {
+									color: [255, 255, 255, 0.1],
+									width: 0.5
+								}
+							},
+							visualVariables: [{
+								type: "color",
+								field: "portcity",
+								stops: [{
+										value: 1,
+										color: "#D0D0CB"
+									},
+									{
+										value: 2,
+										color: "#93a1f5"
+									}
+								]
+							}]
+						}
+					});
+					var csvtemplate = {
+						title: "portcity",
+						content: "Name: {name}<br/>"
+					};
+					var csvLayer = new CSVLayer({
+						url: "https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/portcity.csv",
+						// This property can be used to uniquely identify the layer
+						id: "cls",
+						visible: false,
+						title: "PortCities",
+						popupTemplate: csvtemplate
+					});
+					csvLayer.renderer = {
+						type: "class-breaks",
+						defaultSymbol: {
+							type: "simple-marker",
+							color: "blue"
+						}
+					};
+
+					var map1 = new Map({
+						basemap: "streets",
+						layers: [geoJSONLayer]
+
+					})
+					var view1 = new MapView({
+						container: "map1",
+						map: map1,
+						center: [110, 30],
+						zoom: 4,
+					});
+
+					var map2 = new Map({
+						basemap: "topo",
+
+					});
+
+					var view2 = new MapView({
+						container: "map2",
+						map: map2,
+						center: [110, 30],
+						zoom: 4,
+					});
+					map2.add(jsonLayer);
+					map2.add(csvLayer);
+
+					watchUtils.whenTrue(view1, "stationary", function() {
+						if(view1.extent) {
+							view2.extent = view1.extent;
+						}
+					});
+
+					watchUtils.whenTrue(view2, "stationary", function() {
+						if(view2.extent) {
+							view1.extent = view2.extent;
+						}
+					});
+					
+					const legend1 = new Expand({
+						content: new Legend({
+							view: view1,
+							style: "card" // other styles include 'classic'
+						}),
+						view: view1,
+						expanded: true,
+					});
+					view1.ui.add(legend1, "top-right");
+
+					const legend = new Expand({
+						content: new Legend({
+							view: view2,
+							style: "card" // other styles include 'classic'
+						}),
+						view: view2,
+						expanded: true,
+					});
+					view2.ui.add(legend, "top-right");
+				});
+		</script>
+	</head>
+
+	<body>
+
+		<div id="map1"></div>
+		<div id="map2"></div>
+
+		<div class="navv">
+			<nav>
+				<ul>
+					<li>
+						<a href="Main.html"><b>主页</b></a>
+					</li>
+					<li>
+						<a href="occupy.html"><b>被侵占领土</b></a>
+					</li>
+					<li>
+						<a href="main compaigns.html"><b>主要战役</b></a>
+					</li>
+					<li>
+						<a href="port city.html"><b>开放港口</b></a>
+					</li>
+					<li>
+						<a href="analyse.html"><b>分析比较</b></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</body>
+
+</html>

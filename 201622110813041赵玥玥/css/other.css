@@ -1,0 +1,51 @@
+nav {
+	/*宽度100%*/
+	width: 100%;
+	/*相对位置*/
+	position: absolute;
+	/*漂移到左边*/
+	float: left;
+	/*边框样式：虚线，宽度为1*/
+	border: dashed 1px;
+	/*文字居中*/
+	text-align: center;
+	/*背景图片*/
+	background: url(../img/head.png);
+}
+
+
+/*导航内部*/
+
+ul {
+	/*去掉导航条中间的小点*/
+	list-style: none;
+}
+
+
+/*导航栏子菜单样式*/
+
+nav li {
+	position: relative;
+	/*字体大小*/
+	font-size: 20px;
+	/*字体样式*/
+	font-style: "Book Antiqua";
+	/*导航子菜单单项漂移*/
+	float: left;
+	zoom: 1;
+	/*高度自动*/
+	height: auto;
+}
+
+
+/*导航子项中a链接的样式*/
+
+nav li a {
+	display: block;
+	/*填充*/
+	padding: 16px;
+	/*字体颜色*/
+	color: firebrick;
+	/*去掉下划线*/
+	text-decoration: none;
+}

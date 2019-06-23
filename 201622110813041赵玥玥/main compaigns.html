@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>主要战役</title>
+		<link rel="stylesheet" href="css/other.css"/>
+
+		<style>	
+			body{
+				margin: 0;
+			}		
+			#viewDiv {
+				position: absolute;
+				padding: 0;
+				margin: 0;
+				top:76px;
+				height: 87%;
+				width: 100%;
+			
+			}
+						                      
+		</style>
+
+		<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/themes/light/main.css" />
+		<script src="https://js.arcgis.com/4.11/"></script>
+
+		<script>
+			require([
+				"esri/Map",
+				"esri/layers/CSVLayer",
+				"esri/views/MapView",
+				"esri/widgets/Legend"
+			], function(Map, CSVLayer, MapView, Legend) {
+				// If CSV files are not on the same domain as your website, a CORS enabled server
+				// or a proxy is required.
+				var url =
+					"https://raw.githubusercontent.com/Zhaozhaoyueyue/11/master/compaigns1.csv";
+
+				var template = {
+					title: "Campaigns",
+					content: "Name: {NAME}<br/>Place: {Place}<br/> Time: {Time}<br/>Death: {Death}<br/>Result: {Result}<br/>Description: {Caption}<br/>"
+				};
+
+				var csvLayer = new CSVLayer({
+					url: url,
+					copyright: "Campaigns",
+					title: "Campaigns",
+					popupTemplate: template
+
+				});
+
+				csvLayer.renderer = {
+					type: "class-breaks",
+					defaultSymbol: {
+						type: "simple-marker"
+					},
+					visualVariables: [{
+						type: "color",
+						field: "results",
+						stops: [{
+								value: 1,
+								color: "#4F6704"
+							},
+							{
+								value: 2,
+								color: "#fcedcd"
+							}
+						]
+					}]
+				};
+
+				var map = new Map({
+					basemap: "osm",
+					layers: [csvLayer]
+				});
+
+				var view = new MapView({
+					container: "viewDiv",
+					center: [110, 30],
+					zoom: 4,
+					map: map
+				});
+
+				view.ui.add(
+					new Legend({
+						view: view						
+					}),
+					"bottom-left"
+				);
+			});
+		</script>
+	</head>
+
+	<body>
+		<div id="viewDiv"></div>
+		<div class="navv">
+			<nav>
+				<ul>
+					<li>
+						<a href="Main.html"><b>主页</b></a>
+					</li>
+					<li>
+						<a href="occupy.html"><b>被侵占领土</b></a>
+					</li>
+					<li>
+						<a href="main compaigns.html"><b>主要战役</b></a>
+					</li>
+					<li>
+						<a href="port city.html"><b>开放港口</b></a>
+					</li>
+					<li>
+						<a href="analyse.html"><b>分析比较</b></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</body>
+
+</html>
